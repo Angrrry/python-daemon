@@ -24,8 +24,16 @@ while True:
     sleep(2)
     input_data = sys.stdin.read()
     if input_data.isdigit():
-
+        # TODO Daemon shoud write to log the value of soft limit for "Max open files" of the PID
         ...
-
+    elif input_data == "PACKAGES":
+        # TODO write top 5 packages installed in the system
+        ...
+    elif input_data.startswith("/dev/pts/"):
+        # TODO WRITE "Hello Sender" to the terminal /dev/pts/<NUM>. And write 'Sent message to user' to logfile
+        ...
+    elif input_data == "CLOSE":
+        # TODO Shut down daemon process with message "Shutting down" to log
+        ...
 
 os.unlink("/namedpipe")
