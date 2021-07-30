@@ -7,14 +7,14 @@ FIFO = "./namedpipe"
 STDOUT = "./logfile.log"
 STDERR = "./logfile.err"
 # TODO uncomment this
-# pid = os.fork()
-# if pid != 0:
-#     sys.exit(0)
+pid = os.fork()
+if pid != 0:
+    sys.exit(0)
 
-# os.setsid()
-# os.umask(0)
-# sys.stderr.flush()
-# sys.stdout.flush()
+os.setsid()
+os.umask(0)
+sys.stderr.flush()
+sys.stdout.flush()
 try:
     os.mkfifo(FIFO)
 except OSError:
@@ -24,10 +24,10 @@ with open(FIFO) as fifo, open(STDOUT,"w+") as stdout, open(STDERR,"w+") as stder
     while True:
         input_data = fifo.read().strip("\n")
         if not input_data:
-            sleep(1)
+            sleep(3)
         # TODO uncomment
-        # sys.stderr = stderr
-        # sys.stdout = stdout
+        sys.stderr = stderr
+        sys.stdout = stdout
         if input_data.isdigit():
             # TODO Daemon shoud write to log the value of soft limit for "Max open files" of the PID
             command = f"cat /proc/{input_data}/limits | grep 'Max open files'"
@@ -35,20 +35,15 @@ with open(FIFO) as fifo, open(STDOUT,"w+") as stdout, open(STDERR,"w+") as stder
             print(f"{time.time()} {output}")
         elif input_data == "PACKAGES":
             # TODO write top 5 packages installed in the system
-            print("packages")
             output = str(subprocess.check_output(['/bin/bash','-c',"""apt list --installed | tail -n 5 | tr "\n" " " """]))
             print(f"{time.time()} {output}")
         elif input_data.startswith("/dev/pts/"):
             # TODO WRITE "Hello Sender" to the terminal /dev/pts/<NUM>. And write 'Sent message to user' to logfile
-            print("dev/pts")
             print(f"{time.time()} Message sent!")
             subprocess.run(["/bin/bash", "-c", f"echo 'Hello Sender\n' > {input_data}"])
         elif input_data == "CLOSE":
             # TODO Shut down daemon process with message "Shutting down" to log
-            print("IM IN CLOSE")
             print(f"{time.time()} Shutting down")
             os.unlink("./namedpipe")
             sys.exit(1)
-        print(f"NEW INPUT DATA:{input_data}")
-        print("NOWHERE")
-        sleep(5)
+        sleep(3)
